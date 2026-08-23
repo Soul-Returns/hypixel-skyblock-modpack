@@ -139,8 +139,16 @@ tools/
 
 ### Rebuilding the player zip
 
-Only needed when the update URL, memory defaults or Minecraft/loader version
-change — not for mod updates.
+Only needed when the update URL, memory defaults, Minecraft/loader version or a
+pinned installer jar changes — not for mod updates.
+
+The zip ships `packwiz-installer.jar` pinned and launches the bootstrap with
+`--bootstrap-no-update`. That is deliberate: left to update itself, the
+bootstrap calls `api.github.com` on **every launch**, which allows 60
+unauthenticated requests per hour per IP. Once it 403s, the bootstrap fails to
+load the installer at all and the game does not start — so a few players behind
+one NAT would break each other's launches. Both jars are hash-checked at build
+time. Bumping them is a manual version bump in `build-instance.sh`.
 
 ```bash
 ./installer/build-instance.sh

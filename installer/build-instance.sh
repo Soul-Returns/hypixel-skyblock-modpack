@@ -13,21 +13,37 @@ BOOTSTRAP_VERSION="v0.0.3"
 BOOTSTRAP_SHA256="a8fbb24dc604278e97f4688e82d3d91a318b98efc08d5dbfcbcbcab6443d116c"
 BOOTSTRAP_URL="https://github.com/packwiz/packwiz-installer-bootstrap/releases/download/${BOOTSTRAP_VERSION}/packwiz-installer-bootstrap.jar"
 
-CACHE="$HERE/.cache/packwiz-installer-bootstrap-${BOOTSTRAP_VERSION}.jar"
-mkdir -p "$(dirname "$CACHE")"
+# packwiz-installer is shipped rather than self-updated. Left to update itself,
+# the bootstrap calls api.github.com on EVERY launch; that endpoint allows 60
+# unauthenticated requests per hour per IP, and once it 403s the bootstrap fails
+# to load the installer at all and the game does not start. Several players
+# behind one NAT would break each other's launches.
+INSTALLER_VERSION="v0.5.14"
+INSTALLER_SHA256="c9f646908d340d84773948a9a7d98bc1dae250d35e1016dc6e2b8459760b5598"
+INSTALLER_URL="https://github.com/packwiz/packwiz-installer/releases/download/${INSTALLER_VERSION}/packwiz-installer.jar"
 
-if [[ ! -f "$CACHE" ]]; then
-  echo "==> downloading packwiz-installer-bootstrap $BOOTSTRAP_VERSION"
-  curl -fsSL -o "$CACHE.tmp" "$BOOTSTRAP_URL"
-  mv "$CACHE.tmp" "$CACHE"
-fi
+fetch_pinned() {
+  local name="$1" version="$2" url="$3" want="$4"
+  local cache="$HERE/.cache/${name}-${version}.jar"
+  mkdir -p "$(dirname "$cache")"
 
-# Pinned hash: this jar runs on every friend's machine before Minecraft does.
-echo "$BOOTSTRAP_SHA256  $CACHE" | sha256sum -c - >/dev/null || {
-  echo "ERROR: bootstrap jar hash mismatch - refusing to build" >&2
-  rm -f "$CACHE"
-  exit 1
+  if [[ ! -f "$cache" ]]; then
+    echo "==> downloading $name $version" >&2
+    curl -fsSL -o "$cache.tmp" "$url"
+    mv "$cache.tmp" "$cache"
+  fi
+
+  # These jars run on every player's machine before Minecraft does.
+  if ! echo "$want  $cache" | sha256sum -c - >/dev/null 2>&1; then
+    echo "ERROR: $name hash mismatch - refusing to build" >&2
+    rm -f "$cache"
+    exit 1
+  fi
+  echo "$cache"
 }
+
+BOOTSTRAP_JAR="$(fetch_pinned packwiz-installer-bootstrap "$BOOTSTRAP_VERSION" "$BOOTSTRAP_URL" "$BOOTSTRAP_SHA256")"
+INSTALLER_JAR="$(fetch_pinned packwiz-installer "$INSTALLER_VERSION" "$INSTALLER_URL" "$INSTALLER_SHA256")"
 
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
@@ -36,7 +52,8 @@ trap 'rm -rf "$STAGE"' EXIT
 # itself writes on Linux.
 mkdir -p "$STAGE/minecraft"
 cp "$HERE/instance/instance.cfg" "$HERE/instance/mmc-pack.json" "$STAGE/"
-cp "$CACHE" "$STAGE/minecraft/packwiz-installer-bootstrap.jar"
+cp "$BOOTSTRAP_JAR" "$STAGE/minecraft/packwiz-installer-bootstrap.jar"
+cp "$INSTALLER_JAR" "$STAGE/minecraft/packwiz-installer.jar"
 
 mkdir -p "$(dirname "$OUT")"
 rm -f "$OUT"

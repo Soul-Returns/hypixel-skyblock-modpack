@@ -4,6 +4,7 @@
 
 # GitHub Pages plumbing, not modpack content
 .nojekyll
+index.html
 
 # Written by packwiz-installer inside a player's instance; never ours to ship
 packwiz.json
