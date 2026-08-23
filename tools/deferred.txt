@@ -1,0 +1,17 @@
+# Hypixel Skyblock mods deliberately not in the pack yet, one Modrinth slug
+# per line. tools/check-deferred.py reports which of them have a build for the
+# pack's current Minecraft version.
+#
+# Adding one is a decision, not a formality: several of these ship overlapping
+# features enabled by default, and resolving that overlap in pack/config is the
+# work. See README.
+skyhanni
+skyblocker-liap
+firmament
+odin
+nofrills
+devonian
+skyblock-overhaul
+skyblock-profile-viewer
+iq-addons
+ping-offset-miner

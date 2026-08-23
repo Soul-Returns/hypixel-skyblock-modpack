@@ -1,0 +1,11 @@
+# Extends packwiz's built-in defaults (.git, .gitignore, *.mrpack, ...).
+# Anything not ignored here gets indexed and installed into every player's
+# instance - that is how a stray .nojekyll ended up in their game folder once.
+
+# GitHub Pages plumbing, not modpack content
+.nojekyll
+
+# Written by packwiz-installer inside a player's instance; never ours to ship
+packwiz.json
+packwiz-installer.jar
+packwiz-installer-bootstrap.jar

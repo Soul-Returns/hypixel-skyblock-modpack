@@ -1,0 +1,51 @@
+name: Publish pack to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pack/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+# Only the pack directory is published, so the repo can hold tooling and docs
+# without them ending up on the update URL clients poll.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A newer push should win; half-published indexes break client updates.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify index is in sync with pack contents
+        run: |
+          curl -fsSL -o /tmp/packwiz.tar.gz \
+            https://github.com/packwiz/packwiz/releases/latest/download/packwiz_Linux_x86_64.tar.gz
+          tar -xzf /tmp/packwiz.tar.gz -C /tmp packwiz
+          cd pack
+          /tmp/packwiz refresh
+          # refresh is a no-op on a committed-clean pack; a diff means someone
+          # edited a file without running it, and clients would get stale hashes.
+          git diff --exit-code -- . || {
+            echo "::error::pack index is stale — run 'packwiz refresh' in pack/ and commit"
+            exit 1
+          }
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pack
+      - id: deploy
+        uses: actions/deploy-pages@v4

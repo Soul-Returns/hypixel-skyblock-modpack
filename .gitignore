@@ -1,0 +1,5 @@
+# Built artifacts - regenerate with installer/build-instance.sh
+/dist/
+
+# Downloaded bootstrap jar, hash-pinned in build-instance.sh
+/installer/.cache/
