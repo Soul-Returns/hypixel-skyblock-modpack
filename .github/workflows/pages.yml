@@ -29,13 +29,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # packwiz publishes no release binaries, so it is built from source.
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
       - name: Verify index is in sync with pack contents
         run: |
-          curl -fsSL -o /tmp/packwiz.tar.gz \
-            https://github.com/packwiz/packwiz/releases/latest/download/packwiz_Linux_x86_64.tar.gz
-          tar -xzf /tmp/packwiz.tar.gz -C /tmp packwiz
+          go install github.com/packwiz/packwiz@latest
           cd pack
-          /tmp/packwiz refresh
+          "$(go env GOPATH)/bin/packwiz" refresh
           # refresh is a no-op on a committed-clean pack; a diff means someone
           # edited a file without running it, and clients would get stale hashes.
           git diff --exit-code -- . || {
