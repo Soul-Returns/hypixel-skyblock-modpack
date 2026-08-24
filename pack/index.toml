@@ -1,6 +1,26 @@
 hash-format = "sha256"
 
 [[files]]
+file = "config/defaultoptions/keybindings.txt"
+hash = "4697cb955680deeb7bf653d2a5d4a7e0d8e456d6438f402f7bb9918292a30090"
+
+[[files]]
+file = "config/defaultoptions/options.txt"
+hash = "fcd90cab2b209c5644bd9a6e296ad5ed3c5b9359112534e9633597d88c76a22a"
+
+[[files]]
+file = "config/defaultoptions/servers.dat"
+hash = "b0f543a39deb6a88368acfe616bc1cdd8f623726d978505dd718f8a076e5a4d1"
+
+[[files]]
+file = "config/sodium-extra-options.json"
+hash = "973a61d6f02537305cdbb306cb063de75825aabb37a5392e9de61b432312e282"
+
+[[files]]
+file = "config/sodium-options.json"
+hash = "a254b8f531a8cef6ade6f1b860e80ee4cfbf5fb5905d0963c24b121c4f6518a2"
+
+[[files]]
 file = "mods/3dskinlayers.pw.toml"
 hash = "9bc3807d34ba58c5fab2d5ebf1d795c1212b0706dabcdda16a7a3684c8973c1e"
 metafile = true
